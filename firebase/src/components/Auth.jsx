@@ -1,43 +1,80 @@
 import React, { useState } from "react";
 import { auth } from "../config/firebase-config";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
+
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      console.log("User signed in with Google:", userCredential.user);
+      setUser(userCredential.user); // Update the user state
+    } catch (error) {
+      console.error("Error signing in with Google:", error.message);
+    }
+  };
 
   const signIn = async () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.log("User signed in:", userCredential.user);
+      setUser(userCredential.user); // Update the user state
     } catch (error) {
       console.error("Error signing in:", error.message);
     }
   };
-  
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log("User signed out.");
+      setUser(null); // Clear the user state
+    } catch (error) {
+      console.error("Error signing out:", error.message);
+    }
+  };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1 className="auth-title">Login</h1>
-        <div className="auth-form">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="auth-input"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="auth-input"
-          />
-          <button onClick={signIn} className="auth-button">
-            Login
-          </button>
-        </div>
+        {!user ? (
+          <>
+            <h1 className="auth-title">Login</h1>
+            <div className="auth-form">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+              />
+              <button onClick={signIn} className="auth-button">
+                Login
+              </button>
+              <button onClick={signInWithGoogle} className="auth-button">
+                Login with Google
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h1 className="auth-title">Welcome, {user.email}!</h1>
+            <button onClick={handleLogout} className="auth-button logout-button">
+              Logout
+            </button>
+          </>
+        )}
       </div>
       <style>{`
         .auth-container {
@@ -96,6 +133,14 @@ const Auth = () => {
 
         .auth-button:hover {
           background-color: #0056b3;
+        }
+
+        .logout-button {
+          background-color: #dc3545;
+        }
+
+        .logout-button:hover {
+          background-color: #a71d2a;
         }
       `}</style>
     </div>
