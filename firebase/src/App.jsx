@@ -93,7 +93,7 @@ const App = () => {
           <input
             type="number"
             className="w-full p-2 border rounded-md"
-            placeholder="Release Year"
+            placeholder="Releasee Year"
             value={releaseDate}
             onChange={(e) => setReleaseDate(e.target.value)}
           />
@@ -102,7 +102,7 @@ const App = () => {
               type="checkbox"
               checked={gotAnOscar}
               onChange={(e) => setGotAnOscar(e.target.checked)}
-            />
+            /> 
             <label className="text-gray-700">Received an Oscar?</label>
           </div>
           <button
